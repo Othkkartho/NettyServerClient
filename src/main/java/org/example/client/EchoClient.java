@@ -25,12 +25,11 @@ public class EchoClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
-                            ChannelPipeline pipeline = socketChannel.pipeline();
-                            pipeline.addLast(new EchoClientHandler());
+                            socketChannel.pipeline().addLast(new EchoClientHandler());
                         }
                     });
 
-            ChannelFuture future = bootstrap.connect("localhost", 8888).sync();
+            ChannelFuture future = bootstrap.connect("localhost", 8880).sync();
 
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {

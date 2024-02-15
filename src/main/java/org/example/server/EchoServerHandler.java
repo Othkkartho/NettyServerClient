@@ -2,35 +2,48 @@ package org.example.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
+import org.example.util.Wrapping;
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
 
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EchoServerHandler extends ChannelInboundHandlerAdapter {
+public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     static Logger logger = Logger.getLogger(EchoServerHandler.class.getName());
+    private static SystemInfo info = new SystemInfo();
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        String readMessage = ((ByteBuf) msg).toString(Charset.defaultCharset());
-        StringBuilder builder = new StringBuilder();
-        builder.append("수신한 문자열 [");
-        builder.append(readMessage);
-        builder.append("]");
-        logger.log(Level.INFO, builder.toString());
+    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
+        ByteBuf buf = msg;
+        int length = buf.readableBytes();
+        byte[] bytes = new byte[length];
+
+        for (int i = 0; i < length; i++)
+            bytes[i] = buf.getByte(i);
+
+        Wrapping.unpacked(bytes);
+
+        HardwareAbstractionLayer sendMessage = info.getHardware();
+        byte[] packer = Wrapping.packer(sendMessage);
 
         ByteBuf msgBuffer = Unpooled.buffer();
-        msgBuffer.writeBytes("Server Response => received data : ".getBytes());
+        msgBuffer.writeBytes(packer);
 
-        ctx.write(msgBuffer);
-        ctx.write(msg);
+        ChannelFuture cf = ctx.writeAndFlush(msgBuffer);
+
+        cf.addListener((ChannelFutureListener) channelFuture -> {
+            if (channelFuture.isSuccess())
+                logger.log(Level.INFO, "서버에서 전송 성공");
+            else
+                logger.log(Level.WARNING, "서버에서 전송 실패");
+        });
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
-        ctx.flush();
+        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override

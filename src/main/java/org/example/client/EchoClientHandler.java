@@ -2,33 +2,46 @@ package org.example.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.*;
+import org.example.util.Wrapping;
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
 
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class EchoClientHandler extends ChannelInboundHandlerAdapter {
+public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private static Logger logger = Logger.getLogger(EchoClientHandler.class.getName());
+    private static SystemInfo info = new SystemInfo();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        String sendMessage = "Hello Netty";
+        HardwareAbstractionLayer sendMessage = info.getHardware();
+        byte[] packer = Wrapping.packer(sendMessage);
 
         ByteBuf msgBuffer = Unpooled.buffer();
-        msgBuffer.writeBytes(sendMessage.getBytes());
+        msgBuffer.writeBytes(packer);
 
-        logger.log(Level.INFO, () -> "Client 전송한 문자열 [" + sendMessage + "]");
-
-        ctx.writeAndFlush(msgBuffer);
+        ChannelFuture cf = ctx.writeAndFlush(msgBuffer);
+        
+        cf.addListener((ChannelFutureListener) channelFuture -> {
+            if (channelFuture.isSuccess())
+                logger.log(Level.INFO, "클라이언트에서 전송 성공");
+            else
+                logger.log(Level.WARNING, "클라이언트에서 전송 실패");
+        });
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        String readMessage = ((ByteBuf) msg).toString(Charset.defaultCharset());
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, ByteBuf msg) {
+        ByteBuf readbyte = msg;
+        int length = readbyte.readableBytes();
+        byte[] bytes = new byte[length];
 
-        logger.log(Level.INFO, () -> "Client 수신한 문자열 [" + readMessage + "]");
+        for (int i = 0; i < length; i++)
+            bytes[i] = readbyte.getByte(i);
+
+        Wrapping.unpacked(bytes);
     }
 
     @Override
