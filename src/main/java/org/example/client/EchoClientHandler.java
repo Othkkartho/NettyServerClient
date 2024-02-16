@@ -3,15 +3,15 @@ package org.example.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
+import org.example.util.GlobalLogger;
 import org.example.util.Wrapping;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private final Logger logger = Logger.getLogger(EchoClientHandler.class.getName());
+    private final GlobalLogger logger = new GlobalLogger(EchoClientHandler.class.getName());
     private final SystemInfo info = new SystemInfo();
 
     @Override
@@ -26,9 +26,9 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         
         cf.addListener((ChannelFutureListener) channelFuture -> {
             if (channelFuture.isSuccess())
-                logger.log(Level.INFO, "클라이언트에서 전송 성공");
+                logger.logging(Level.INFO, "클라이언트에서 전송 성공");
             else
-                logger.log(Level.WARNING, "클라이언트에서 전송 실패");
+                logger.logging(Level.WARNING, "클라이언트에서 전송 실패");
         });
     }
 
@@ -50,7 +50,7 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.log(Level.WARNING, String.valueOf(cause));
+        logger.logging(Level.WARNING, String.valueOf(cause));
         ctx.close();
     }
 }

@@ -9,12 +9,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import org.example.util.GlobalLogger;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EchoServer {
-    private final Logger logger = Logger.getLogger(EchoServer.class.getName());
+    private final GlobalLogger logger = new GlobalLogger(EchoServer.class.getName());
 
     public static void main(String[] args) {
         int port = 8800;
@@ -41,10 +41,10 @@ public class EchoServer {
             ChannelFuture future;
             try {
                 future = bootstrap.bind(port).sync();
-                logger.log(Level.INFO, "서버시작");
+                logger.logging(Level.INFO, "서버시작");
                 future.channel().closeFuture().sync();
             } catch (InterruptedException e) {
-                logger.log(Level.WARNING, String.valueOf(e));
+                logger.logging(Level.WARNING, String.valueOf(e));
 
                 Thread.currentThread().interrupt();
             }

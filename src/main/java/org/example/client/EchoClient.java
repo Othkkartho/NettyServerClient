@@ -7,12 +7,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.example.util.GlobalLogger;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EchoClient {
-    private final Logger logger = Logger.getLogger(EchoClient.class.getName());
+    private final GlobalLogger logger = new GlobalLogger(EchoClient.class.getName());
 
     public static void main(String[] args) {
         String host = "localhost";
@@ -39,7 +39,7 @@ public class EchoClient {
 
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.log(Level.WARNING, String.valueOf(e));
+            logger.logging(Level.WARNING, String.valueOf(e));
 
             Thread.currentThread().interrupt();
         } finally {

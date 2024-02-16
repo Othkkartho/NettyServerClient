@@ -10,20 +10,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Wrapping {
-    private static final Logger logger = Logger.getLogger(Wrapping.class.getName());
+    private static final GlobalLogger logger = new GlobalLogger(Wrapping.class.getName());
     private static final MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+
+    private Wrapping() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static byte[] packer(HardwareAbstractionLayer info) {
         try {
             packer.packString("MemoryTotal");
             packer.packLong(info.getMemory().getTotal());
         } catch (IOException e) {
-            logger.log(Level.WARNING, String.valueOf(e));
+            logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
             try {
                 packer.close();
             } catch (IOException e) {
-                logger.log(Level.WARNING, String.valueOf(e));
+                logger.logging(Level.WARNING, String.valueOf(e));
             }
         }
 
@@ -40,18 +44,18 @@ public class Wrapping {
             memoryName = unpacker.unpackString();
             size = unpacker.unpackLong();
         } catch (IOException e) {
-            logger.log(Level.WARNING, String.valueOf(e));
+            logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
             try {
                 unpacker.close();
             } catch (IOException e) {
-                logger.log(Level.WARNING, String.valueOf(e));
+                logger.logging(Level.WARNING, String.valueOf(e));
             }
         }
 
         long finalSize = size;
         String finalMemoryName = memoryName;
-        logger.log(Level.INFO, () -> finalMemoryName + ": " + finalSize);
+        logger.logging(Level.INFO, String.format("%s: %d",finalMemoryName, finalSize));
 
         return msg;
     }
