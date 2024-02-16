@@ -3,10 +3,14 @@ package org.example.util;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.*;
 import oshi.hardware.HardwareAbstractionLayer;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.logging.Level;
 
 public class Wrapping {
@@ -19,16 +23,18 @@ public class Wrapping {
 
     public static byte[] packer(HardwareAbstractionLayer info) {
         try {
-            packer.packMapHeader(3);
-
             packer.packString("Memory Total");
             packer.packLong(info.getMemory().getTotal());
 
             packer.packString("Memory Available");
             packer.packLong(info.getMemory().getAvailable());
 
-            packer.packString("Memory PageSize");
-            packer.packLong(info.getMemory().getPageSize());
+            packer.packInt(3);
+            packer.packArrayHeader(3).packInt(2).packString("String").packDouble(0.4567);
+            packer.packBigInteger(BigInteger.valueOf(1239339812312323224L));
+
+            packer.packFloat(0.3f);
+            packer.packDouble(0.213512);
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
@@ -46,20 +52,48 @@ public class Wrapping {
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(msg);
 
         HashMap<String, Long> map = new HashMap<>();
-        int num = 0;
 
-        String[] memoryName = new String[0];
-        Long[] size = new Long[0];
+        ArrayList<Long> longs = new ArrayList<>();
+        ArrayList<Double> doubles = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList<>();
+        ArrayList<Value> objects = new ArrayList<>();
 
         try {
-            num = unpacker.unpackMapHeader();
+            while (unpacker.hasNext()) {
+                Value v = unpacker.unpackValue();
+                switch (v.getValueType()) {
+                    case INTEGER:
+                        IntegerValue iv = v.asIntegerValue();
+                        if (iv.isInIntRange()) {
+                            int i = iv.toInt();
+                            longs.add((long) i);
+                        }
+                        else if (iv.isInLongRange()) {
+                            long l = iv.toLong();
+                            longs.add(l);
+                        }
+                        else {
+                            BigInteger i = iv.toBigInteger();
+                            longs.add(Long.valueOf(String.valueOf(i)));
+                        }
+                        break;
+                    case FLOAT:
+                        FloatValue fv = v.asFloatValue();
+                        double d = fv.toDouble();
 
-            memoryName = new String[num];
-            size = new Long[num];
-
-            for (int i = 0; i < num; ++i) {
-                memoryName[i] = unpacker.unpackString();
-                size[i] = unpacker.unpackLong();
+                        doubles.add(d);
+                        break;
+                    case STRING:
+                        String s = v.asStringValue().asString();
+                        strings.add(s);
+                        break;
+                    case ARRAY:
+                        ArrayValue a = v.asArrayValue();
+                        for (Value e : a) {
+                            objects.add(e);
+                        }
+                        break;
+                }
             }
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
@@ -70,9 +104,6 @@ public class Wrapping {
                 logger.logging(Level.WARNING, String.valueOf(e));
             }
         }
-
-        for (int i = 0; i < num; i++)
-            logger.logging(Level.INFO, String.format("%s: %d", memoryName[i], size[i]));
 
         return map;
     }
