@@ -13,6 +13,7 @@
 * [Netty - Buffer](https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.106.Final): 4.1.106.Final
 * [Netty - Handler](https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.106.Final): 4.1.106.Final
 * [MessagePack-core](https://mvnrepository.com/artifact/org.msgpack/msgpack-core): 0.8.24
+* 지워도 되는 의존성: slf4j, jna, jna-platform, resolver
 
 ### 설명
 
