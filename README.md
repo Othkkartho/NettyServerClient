@@ -9,7 +9,9 @@
 
 ### Library
 * [OSHI](https://mvnrepository.com/artifact/com.github.oshi/oshi-core): 5.8.7
-* [Netty](https://mvnrepository.com/artifact/io.netty/netty-all): 4.1.106.Final
+* ~~[Netty - All In One](https://mvnrepository.com/artifact/io.netty/netty-all): 4.1.106.Final~~
+* [Netty - Buffer](https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.106.Final): 4.1.106.Final
+* [Netty - Handler](https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.106.Final): 4.1.106.Final
 * [MessagePack-core](https://mvnrepository.com/artifact/org.msgpack/msgpack-core): 0.8.24
 
 ### 설명
