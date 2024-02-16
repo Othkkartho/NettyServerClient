@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    static Logger logger = Logger.getLogger(EchoServerHandler.class.getName());
+    private final Logger logger = Logger.getLogger(EchoServerHandler.class.getName());
     private final SystemInfo info = new SystemInfo();
 
     @Override
