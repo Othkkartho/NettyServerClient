@@ -48,7 +48,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.logging(Level.WARNING, "오류 발생");
-        logger.logging(Level.INFO, cause.getMessage());
+        logger.logging(Level.INFO, cause.getLocalizedMessage());
         ctx.close();
     }
 }

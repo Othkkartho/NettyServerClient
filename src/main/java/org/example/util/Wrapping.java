@@ -6,8 +6,8 @@ import org.msgpack.core.MessageUnpacker;
 import oshi.hardware.HardwareAbstractionLayer;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Wrapping {
     private static final GlobalLogger logger = new GlobalLogger(Wrapping.class.getName());
@@ -19,8 +19,16 @@ public class Wrapping {
 
     public static byte[] packer(HardwareAbstractionLayer info) {
         try {
-            packer.packString("MemoryTotal");
+            packer.packMapHeader(3);
+
+            packer.packString("Memory Total");
             packer.packLong(info.getMemory().getTotal());
+
+            packer.packString("Memory Available");
+            packer.packLong(info.getMemory().getAvailable());
+
+            packer.packString("Memory PageSize");
+            packer.packLong(info.getMemory().getPageSize());
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
@@ -34,15 +42,25 @@ public class Wrapping {
         return packer.toByteArray();
     }
 
-    public static byte[] unpacked(byte[] msg) {
+    public static HashMap<String, Long> unpacked(byte[] msg) {
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(msg);
 
-        String memoryName = "";
-        long size = 0L;
+        HashMap<String, Long> map = new HashMap<>();
+        int num = 0;
+
+        String[] memoryName = new String[0];
+        Long[] size = new Long[0];
 
         try {
-            memoryName = unpacker.unpackString();
-            size = unpacker.unpackLong();
+            num = unpacker.unpackMapHeader();
+
+            memoryName = new String[num];
+            size = new Long[num];
+
+            for (int i = 0; i < num; ++i) {
+                memoryName[i] = unpacker.unpackString();
+                size[i] = unpacker.unpackLong();
+            }
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
@@ -53,10 +71,9 @@ public class Wrapping {
             }
         }
 
-        long finalSize = size;
-        String finalMemoryName = memoryName;
-        logger.logging(Level.INFO, String.format("%s: %d",finalMemoryName, finalSize));
+        for (int i = 0; i < num; i++)
+            logger.logging(Level.INFO, String.format("%s: %d", memoryName[i], size[i]));
 
-        return msg;
+        return map;
     }
 }
