@@ -3,7 +3,6 @@ package org.example.client;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -13,9 +12,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EchoClient {
-    private static Logger logger = Logger.getLogger(EchoClient.class.getName());
+    private final Logger logger = Logger.getLogger(EchoClient.class.getName());
 
     public static void main(String[] args) {
+        String host = "localhost";
+        int port = 8800;
+
+        new EchoClient().clientRun(host, port);
+    }
+
+    public void clientRun(String host, int port) {
         EventLoopGroup group = new NioEventLoopGroup();
 
         try {
@@ -29,7 +35,7 @@ public class EchoClient {
                         }
                     });
 
-            ChannelFuture future = bootstrap.connect("localhost", 8880).sync();
+            ChannelFuture future = bootstrap.connect(host, port).sync();
 
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {

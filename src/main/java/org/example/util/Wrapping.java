@@ -1,20 +1,17 @@
 package org.example.util;
 
-import io.netty.buffer.ByteBuf;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.value.ImmutableValue;
 import oshi.hardware.HardwareAbstractionLayer;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Wrapping {
-    private static Logger logger = Logger.getLogger(Wrapping.class.getName());
-    private static MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+    private static final Logger logger = Logger.getLogger(Wrapping.class.getName());
+    private static final MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
 
     public static byte[] packer(HardwareAbstractionLayer info) {
         try {

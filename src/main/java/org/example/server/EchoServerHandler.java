@@ -12,16 +12,15 @@ import java.util.logging.Logger;
 
 public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     static Logger logger = Logger.getLogger(EchoServerHandler.class.getName());
-    private static SystemInfo info = new SystemInfo();
+    private final SystemInfo info = new SystemInfo();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
-        ByteBuf buf = msg;
-        int length = buf.readableBytes();
+        int length = msg.readableBytes();
         byte[] bytes = new byte[length];
 
         for (int i = 0; i < length; i++)
-            bytes[i] = buf.getByte(i);
+            bytes[i] = msg.getByte(i);
 
         Wrapping.unpacked(bytes);
 
@@ -49,7 +48,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.log(Level.WARNING, "오류 발생");
-        logger.log(Level.INFO, cause.toString());
+        logger.log(Level.INFO, cause.getMessage());
         ctx.close();
     }
 }

@@ -11,8 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private static Logger logger = Logger.getLogger(EchoClientHandler.class.getName());
-    private static SystemInfo info = new SystemInfo();
+    private final Logger logger = Logger.getLogger(EchoClientHandler.class.getName());
+    private final SystemInfo info = new SystemInfo();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -34,12 +34,11 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, ByteBuf msg) {
-        ByteBuf readbyte = msg;
-        int length = readbyte.readableBytes();
+        int length = msg.readableBytes();
         byte[] bytes = new byte[length];
 
         for (int i = 0; i < length; i++)
-            bytes[i] = readbyte.getByte(i);
+            bytes[i] = msg.getByte(i);
 
         Wrapping.unpacked(bytes);
     }
@@ -51,7 +50,7 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.log(Level.WARNING, cause.toString());
+        logger.log(Level.WARNING, String.valueOf(cause));
         ctx.close();
     }
 }

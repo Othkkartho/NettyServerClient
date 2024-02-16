@@ -3,7 +3,6 @@ package org.example.server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -15,9 +14,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EchoServer {
-    static Logger logger = Logger.getLogger(EchoServer.class.getName());
+    private final Logger logger = Logger.getLogger(EchoServer.class.getName());
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
+        int port = 8800;
+
+        new EchoServer().serverRun(port);
+    }
+
+    public void serverRun(int port) {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -33,9 +38,16 @@ public class EchoServer {
                         }
                     });
 
-            ChannelFuture future = bootstrap.bind(8880).sync();
-            logger.log(Level.INFO, "서버시작");
-            future.channel().closeFuture().sync();
+            ChannelFuture future;
+            try {
+                future = bootstrap.bind(port).sync();
+                logger.log(Level.INFO, "서버시작");
+                future.channel().closeFuture().sync();
+            } catch (InterruptedException e) {
+                logger.log(Level.WARNING, String.valueOf(e));
+
+                Thread.currentThread().interrupt();
+            }
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
