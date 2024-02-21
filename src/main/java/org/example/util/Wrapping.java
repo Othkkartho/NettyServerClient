@@ -27,13 +27,6 @@ public class Wrapping {
 
             packer.packString("Memory Available");
             packer.packLong(info.getMemory().getAvailable());
-
-            packer.packInt(3);
-            packer.packArrayHeader(3).packInt(2).packString("String").packDouble(0.4567);
-            packer.packBigInteger(BigInteger.valueOf(1239339812312323224L));
-
-            packer.packFloat(0.3f);
-            packer.packDouble(0.213512);
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
@@ -47,52 +40,45 @@ public class Wrapping {
         return packer.toByteArray();
     }
 
-    public static HashMap<String, Long> unpacked(byte[] msg) {
+    public static HashMap<String, Object> unpacked(byte[] msg) {
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(msg);
 
-        HashMap<String, Long> map = new HashMap<>();
+        HashMap<String, Object> map = new HashMap<>(5);
 
-        ArrayList<Long> longs = new ArrayList<>();
-        ArrayList<Double> doubles = new ArrayList<>();
-        ArrayList<String> strings = new ArrayList<>();
-        ArrayList<Value> objects = new ArrayList<>();
+        String s = null;
+        Object o = null;
 
         try {
             while (unpacker.hasNext()) {
+                if (s != null && o != null) {
+                    s = null; o = null;
+                }
+
                 Value v = unpacker.unpackValue();
                 switch (v.getValueType()) {
                     case INTEGER:
                         IntegerValue iv = v.asIntegerValue();
                         if (iv.isInIntRange()) {
-                            int i = iv.toInt();
-                            longs.add((long) i);
+                            o = iv.toInt();
                         }
                         else if (iv.isInLongRange()) {
-                            long l = iv.toLong();
-                            longs.add(l);
+                            o = iv.toLong();
                         }
                         else {
-                            BigInteger i = iv.toBigInteger();
-                            longs.add(Long.valueOf(String.valueOf(i)));
+                            o = iv.toBigInteger();
                         }
                         break;
                     case FLOAT:
                         FloatValue fv = v.asFloatValue();
-                        double d = fv.toDouble();
-
-                        doubles.add(d);
+                        o = fv.toDouble();
                         break;
                     case STRING:
-                        String s = v.asStringValue().asString();
-                        strings.add(s);
-                        break;
-                    case ARRAY:
-                        ArrayValue a = v.asArrayValue();
-                        for (Value e : a) {
-                            objects.add(e);
-                        }
+                        s = v.asStringValue().asString();
                         break;
                 }
+
+                if (s != null && o != null)
+                    map.put(s, o);
             }
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));

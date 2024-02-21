@@ -8,6 +8,7 @@ import org.example.util.Wrapping;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 
+import java.util.Map;
 import java.util.logging.Level;
 
 public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
@@ -40,7 +41,10 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         for (int i = 0; i < length; i++)
             bytes[i] = msg.getByte(i);
 
-        Wrapping.unpacked(bytes);
+        Map<String, Object> map = Wrapping.unpacked(bytes);
+
+        for (Map.Entry<String, Object> entry : map.entrySet())
+            logger.logging(Level.INFO, "[Key]: " + entry.getKey() + ", [Value]: " + entry.getValue());
     }
 
     @Override
