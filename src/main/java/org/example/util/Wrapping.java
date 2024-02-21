@@ -27,6 +27,12 @@ public class Wrapping {
 
             packer.packString("Memory Available");
             packer.packLong(info.getMemory().getAvailable());
+
+            packer.packString("ComputerSystemModel");
+            packer.packString(info.getComputerSystem().getModel());
+
+            packer.packString("GraphicCardVendor");
+            packer.packString(info.getGraphicsCards().get(0).getVendor());
         } catch (IOException e) {
             logger.logging(Level.WARNING, String.valueOf(e));
         } finally {
@@ -73,7 +79,10 @@ public class Wrapping {
                         o = fv.toDouble();
                         break;
                     case STRING:
-                        s = v.asStringValue().asString();
+                        if (s == null)
+                            s = v.asStringValue().asString();
+                        else
+                            o = v.asStringValue().asString();
                         break;
                 }
 
