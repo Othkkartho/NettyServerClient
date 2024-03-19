@@ -1,18 +1,19 @@
-package org.example.client;
+package org.example.connecttest.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
-import org.example.util.GlobalLogger;
 import org.example.util.Wrapping;
+import org.example.util.nettyLogger;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
-    private final GlobalLogger logger = new GlobalLogger(EchoClientHandler.class.getName());
+    private static final Logger logger = nettyLogger.getInstance().getLogConnection();
     private final SystemInfo info = new SystemInfo();
 
     @Override
@@ -27,9 +28,9 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         
         cf.addListener((ChannelFutureListener) channelFuture -> {
             if (channelFuture.isSuccess())
-                logger.logging(Level.INFO, "클라이언트에서 전송 성공");
+                logger.log(Level.INFO, "클라이언트에서 전송 성공");
             else
-                logger.logging(Level.WARNING, "클라이언트에서 전송 실패");
+                logger.log(Level.WARNING, "클라이언트에서 전송 실패");
         });
     }
 
@@ -44,7 +45,7 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         Map<String, Object> map = Wrapping.unpacked(bytes);
 
         for (Map.Entry<String, Object> entry : map.entrySet())
-            logger.logging(Level.INFO, "[Key]: " + entry.getKey() + ", [Value]: " + entry.getValue());
+            logger.log(Level.INFO, () -> "[Key]: " + entry.getKey() + ", [Value]: " + entry.getValue());
     }
 
     @Override
@@ -54,7 +55,7 @@ public class EchoClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.logging(Level.WARNING, String.valueOf(cause));
+        logger.log(Level.WARNING, "오류 발생");
         ctx.close();
     }
 }

@@ -1,4 +1,4 @@
-package org.example.client;
+package org.example.connecttest.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -7,12 +7,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.example.util.GlobalLogger;
+import org.example.util.nettyLogger;
 
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EchoClient {
-    private final GlobalLogger logger = new GlobalLogger(EchoClient.class.getName());
+    private static final Logger logger = nettyLogger.getInstance().getLogConnection();
 
     public static void main(String[] args) {
         String host = "localhost";
@@ -39,7 +40,7 @@ public class EchoClient {
 
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            logger.logging(Level.WARNING, String.valueOf(e));
+            logger.log(Level.WARNING, String.valueOf(e));
 
             Thread.currentThread().interrupt();
         } finally {
