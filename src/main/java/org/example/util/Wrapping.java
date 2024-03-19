@@ -9,9 +9,10 @@ import oshi.hardware.HardwareAbstractionLayer;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Wrapping {
-    private static final GlobalLogger logger = new GlobalLogger(Wrapping.class.getName());
+    private static final Logger logger = nettyLogger.getInstance().getLogConnection();
     private static final MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
 
     private Wrapping() {
@@ -32,12 +33,12 @@ public class Wrapping {
             packer.packString("GraphicCardVendor");
             packer.packString(info.getGraphicsCards().get(0).getVendor());
         } catch (IOException e) {
-            logger.logging(Level.WARNING, String.valueOf(e));
+            logger.log(Level.WARNING, String.valueOf(e));
         } finally {
             try {
                 packer.close();
             } catch (IOException e) {
-                logger.logging(Level.WARNING, String.valueOf(e));
+                logger.log(Level.WARNING, String.valueOf(e));
             }
         }
 
@@ -88,12 +89,12 @@ public class Wrapping {
                     map.put(s, o);
             }
         } catch (IOException e) {
-            logger.logging(Level.WARNING, String.valueOf(e));
+            logger.log(Level.WARNING, String.valueOf(e));
         } finally {
             try {
                 unpacker.close();
             } catch (IOException e) {
-                logger.logging(Level.WARNING, String.valueOf(e));
+                logger.log(Level.WARNING, String.valueOf(e));
             }
         }
 
